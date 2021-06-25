@@ -22,15 +22,15 @@ IF /I "%platform%"=="x64" ECHO x64 && CALL "C:\Program Files (x86)\Microsoft Vis
 IF /I "%platform%"=="x86" ECHO x86 && CALL "C:\Program Files (x86)\Microsoft Visual Studio\%msvs_version%\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-ECHO using compiler^: && CALL cl
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+::ECHO using compiler^: && CALL cl
+::IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 ECHO using MSBuild^: && CALL msbuild /version && ECHO.
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-ECHO downloading/installing node
-powershell Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:PLATFORM
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+::ECHO downloading/installing node
+::powershell Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:PLATFORM
+::IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 ECHO available node.exe^:
 call where node
@@ -98,10 +98,10 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 FOR /F "tokens=*" %%i in ('node -e "console.log(process.execPath)"') DO SET NODE_EXE=%%i
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-dumpbin /DEPENDENTS "%NODE_EXE%"
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
-dumpbin /DEPENDENTS "%MODULE%"
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+::dumpbin /DEPENDENTS "%NODE_EXE%"
+::IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+::dumpbin /DEPENDENTS "%MODULE%"
+::IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 
 IF "%NODE_RUNTIME%"=="electron" GOTO CHECK_ELECTRON_TEST_ERRORLEVEL
@@ -145,9 +145,7 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 ECHO packaging for node-gyp
 CALL node_modules\.bin\node-pre-gyp package %TOOLSET_ARGS%
 ::make commit message env var shorter
-SET CM=%APPVEYOR_REPO_COMMIT_MESSAGE%
-IF NOT "%CM%" == "%CM:[publish binary]=%" (ECHO publishing && CALL node_modules\.bin\node-pre-gyp --msvs_version=%msvs_version% publish %TOOLSET_ARGS%) ELSE (ECHO not publishing)
-IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+:: TODO: publish here
 
 GOTO DONE
 

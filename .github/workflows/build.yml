@@ -1,0 +1,30 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # TODO: add fail-fast
+      matrix:
+        os: [ macos-latest, ubuntu-latest, windows-2016 ]
+        node: [ 10, 11, 12, 13, 14, 15, 16 ]
+    name: ${{ matrix.os }} - Node ${{ matrix.node }}
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+
+      - run: ./scripts/build_against_node.sh
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+        if: matrix.os == 'windows-2016'
+      - run: .\scripts\build-appveyor.bat
+        if: matrix.os == 'windows-2016'

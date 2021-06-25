@@ -8,15 +8,6 @@ export DISPLAY=":99.0"
 GYP_ARGS="--runtime=electron --target=${ELECTRON_VERSION} --dist-url=https://electronjs.org/headers"
 NPM_BIN_DIR="$(npm bin -g 2>/dev/null)"
 
-function publish() {
-    if [[ ${PUBLISHABLE:-false} == true ]] && [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then
-        node-pre-gyp rebuild  --clang=1 $GYP_ARGS
-        node-pre-gyp package $GYP_ARGS
-        node-pre-gyp publish $GYP_ARGS
-        node-pre-gyp info $GYP_ARGS
-    fi
-}
-
 function electron_pretest() {
     npm install -g electron@${ELECTRON_VERSION}
     if [ "$NODE_VERSION" -le 6 ]; then
@@ -43,8 +34,6 @@ npm install --build-from-source  --clang=1 $GYP_ARGS
 
 electron_pretest
 electron_test
-
-publish
 make clean
 
 # now test building against shared sqlite
@@ -58,3 +47,10 @@ else
 fi
 electron_test
 export NODE_SQLITE3_JSON1=yes
+
+if [[ ${PUBLISHABLE:-false} == true ]] && [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then
+    node-pre-gyp rebuild  --clang=1 $GYP_ARGS
+    node-pre-gyp package $GYP_ARGS
+    node-pre-gyp publish $GYP_ARGS
+    node-pre-gyp info $GYP_ARGS
+fi
